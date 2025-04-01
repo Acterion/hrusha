@@ -1,0 +1,5 @@
+The quick brown fox jumps over the lazy dog. This is a classic pangram used for testing typefaces and keyboard layouts. It contains all the letters of the English alphabet.
+
+Artificial intelligence is rapidly transforming various industries. Machine learning algorithms analyze vast amounts of data to identify patterns and make predictions. Natural Language Processing enables computers to understand and generate human language.
+
+Vite is a modern frontend build tool that significantly improves the frontend development experience. It features an extremely fast cold server start and lightning-fast Hot Module Replacement (HMR). React is a popular JavaScript library for building user interfaces, often used with TypeScript for better type safety and developer experience. Shadcn UI provides beautifully designed components that you can copy and paste into your apps. Vitest is a blazing fast unit test framework powered by Vite. The Vercel AI SDK simplifies integrating AI models into web applications.
