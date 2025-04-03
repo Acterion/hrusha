@@ -5,10 +5,23 @@ import { generateText, CoreMessage } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { fileURLToPath } from "url";
 
+import { generateObject } from 'ai';
+import { z } from "zod"; 
+
+const cvSchema = z.object({
+  yearsOfExperience: z.string(),
+  skillsAndFrameworks: z.array(z.string()),
+  languages: z.array(z.string()),
+  education: z.string(),
+  summary: z.string()
+});
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-// Define paths relative to the script location
-const INPUT_FILE_PATH = path.resolve(__dirname, "../../data/input/example.txt");
+
+// CV and Job Description location
+const CV_FILE_PATH = path.resolve(__dirname, "../../data/input/cv.txt");
+const JOB_DESCRIPTION_PATH = path.resolve(__dirname, "../../data/input/job_description.txt");
 // Output to public dir for frontend access. Changed from data/output/result.txt
 const OUTPUT_FILE_PATH = path.resolve(__dirname, "../../public/results.json");
 
@@ -16,8 +29,11 @@ interface SummaryResult {
   id: string;
   timestamp: number;
   originalFilename: string;
-  originalText: string;
-  summary: string;
+  yearsOfExperience: string;
+  skillsAndFrameworks: string;
+  languages: string;
+  education: string;
+  summary: string
 }
 
 async function readExistingResults(): Promise<SummaryResult[]> {
@@ -71,7 +87,7 @@ export async function run() {
   }
 
   // 2. Read Input File
-  let inputText: string;
+  /*let inputText: string;
   try {
     inputText = await fs.readFile(INPUT_FILE_PATH, "utf-8");
     console.log(chalk.blue(`Read input file: ${INPUT_FILE_PATH}`));
@@ -82,31 +98,69 @@ export async function run() {
     );
     process.exit(1);
   }
+*/
+ let textCV: string;
+ try {
+   textCV = await fs.readFile(CV_FILE_PATH, "utf-8");
+   console.log(chalk.blue('Read CV: ${CV_FILE_PATH}'));
+ } catch (error) {
+     console.error(
+       chalk.red(`❌ Error reading input file (${CV_FILE_PATH}):`),
+       error
+     );
+     process.exit(1);
+    }
+
+  let textJobDescription: string;
+  try {
+    textJobDescription = await fs.readFile(JOB_DESCRIPTION_PATH, "utf-8");
+    console.log(chalk.blue('Read CV: ${JOB_DESCRIPTION_PATH}'));
+  } catch (error) {
+      console.error(
+        chalk.red(`❌ Error reading input file (${JOB_DESCRIPTION_PATH}):`),
+        error
+      );
+      process.exit(1);
+     }
+
+
+
+
+
 
   // 3. Summarize using Vercel AI SDK
-  let summary: string;
+  let result: any;
   try {
     console.log(
       chalk.blue("Generating summary using Vercel AI SDK (OpenAI)...")
     );
+    
+    const systemPrompt = [
+      "You are a helpful HR assistant. Extract the following structured information from a candidate's CV:\n", 
+      "- Years of Experience (as a string like '5+ years in backend development')\n",
+      "- Skills and Frameworks (as a list of keywords; print top5-10 skills of the candidate)\n",
+      "- Languages (spoken/written or programming, inferred from context)\n",
+      "- Education (summarized in 1–2 lines)\n",
+      "- Summary (brief summary of the CV, max 3 sentences)\n"
+    ].join('\n');
+    const userPrompt = `Candidate's CV: ${textCV}`;
 
-    const systemPrompt =
-      "You are a helpful assistant designed to summarize text concisely.";
-    const userPrompt = `Please summarize the following text:\n\n${inputText}`;
 
-    const { text } = await generateText({
-      model: openai("gpt-4-turbo"), // Or your preferred model like 'gpt-3.5-turbo'
-      // system: systemPrompt, // System prompt can be added here
+    const { object } = await generateObject({
+      model: openai("gpt-4-turbo"),
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ] as CoreMessage[], // Cast to CoreMessage[]
       // prompt: userPrompt, // Use messages instead for better control
-      maxTokens: 150, // Adjust as needed
+      //maxTokens: 150, // Adjust as needed
       temperature: 0.5, // Adjust for creativity vs determinism
+      schema: cvSchema
     });
 
-    summary = text.trim();
+    console.log(object);
+
+    result = object;
     console.log(chalk.green("Summary generated successfully."));
     // console.log(chalk.gray('--- Summary ---'));
     // console.log(chalk.gray(summary));
@@ -123,9 +177,12 @@ export async function run() {
   const newResult: SummaryResult = {
     id: `sum-<span class="math-inline">\{Date\.now\(\)\}\-</span>{Math.random().toString(36).substring(2, 8)}`, // Simple unique ID
     timestamp: Date.now(),
-    originalFilename: path.basename(INPUT_FILE_PATH),
-    originalText: inputText,
-    summary: summary,
+    originalFilename: path.basename(CV_FILE_PATH),
+    yearsOfExperience: result.yearsOfExperience,
+    skillsAndFrameworks: result.skillsAndFrameworks.join(", "),
+    languages: result.languages.join(", "),
+    education: result.education,
+    summary: result.summary
   };
 
   const existingResults = await readExistingResults();
