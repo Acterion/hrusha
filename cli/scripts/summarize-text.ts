@@ -5,15 +5,16 @@ import { generateText, CoreMessage } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { fileURLToPath } from "url";
 
-import { generateObject } from 'ai';
-import { z } from "zod"; 
+import { generateObject } from "ai";
+import { z } from "zod";
+import { SummaryResult } from "@types";
 
 const cvSchema = z.object({
   yearsOfExperience: z.string(),
   skillsAndFrameworks: z.array(z.string()),
   languages: z.array(z.string()),
   education: z.string(),
-  summary: z.string()
+  summary: z.string(),
 });
 
 const __filename = fileURLToPath(import.meta.url);
@@ -21,20 +22,12 @@ const __dirname = path.dirname(__filename);
 
 // CV and Job Description location
 const CV_FILE_PATH = path.resolve(__dirname, "../../data/input/cv.txt");
-const JOB_DESCRIPTION_PATH = path.resolve(__dirname, "../../data/input/job_description.txt");
+const JOB_DESCRIPTION_PATH = path.resolve(
+  __dirname,
+  "../../data/input/job_description.txt"
+);
 // Output to public dir for frontend access. Changed from data/output/result.txt
 const OUTPUT_FILE_PATH = path.resolve(__dirname, "../../public/results.json");
-
-interface SummaryResult {
-  id: string;
-  timestamp: number;
-  originalFilename: string;
-  yearsOfExperience: string;
-  skillsAndFrameworks: string;
-  languages: string;
-  education: string;
-  summary: string
-}
 
 async function readExistingResults(): Promise<SummaryResult[]> {
   try {
@@ -99,34 +92,29 @@ export async function run() {
     process.exit(1);
   }
 */
- let textCV: string;
- try {
-   textCV = await fs.readFile(CV_FILE_PATH, "utf-8");
-   console.log(chalk.blue('Read CV: ${CV_FILE_PATH}'));
- } catch (error) {
-     console.error(
-       chalk.red(`❌ Error reading input file (${CV_FILE_PATH}):`),
-       error
-     );
-     process.exit(1);
-    }
+  let textCV: string;
+  try {
+    textCV = await fs.readFile(CV_FILE_PATH, "utf-8");
+    console.log(chalk.blue("Read CV: ${CV_FILE_PATH}"));
+  } catch (error) {
+    console.error(
+      chalk.red(`❌ Error reading input file (${CV_FILE_PATH}):`),
+      error
+    );
+    process.exit(1);
+  }
 
   let textJobDescription: string;
   try {
     textJobDescription = await fs.readFile(JOB_DESCRIPTION_PATH, "utf-8");
-    console.log(chalk.blue('Read CV: ${JOB_DESCRIPTION_PATH}'));
+    console.log(chalk.blue("Read CV: ${JOB_DESCRIPTION_PATH}"));
   } catch (error) {
-      console.error(
-        chalk.red(`❌ Error reading input file (${JOB_DESCRIPTION_PATH}):`),
-        error
-      );
-      process.exit(1);
-     }
-
-
-
-
-
+    console.error(
+      chalk.red(`❌ Error reading input file (${JOB_DESCRIPTION_PATH}):`),
+      error
+    );
+    process.exit(1);
+  }
 
   // 3. Summarize using Vercel AI SDK
   let result: any;
@@ -134,17 +122,16 @@ export async function run() {
     console.log(
       chalk.blue("Generating summary using Vercel AI SDK (OpenAI)...")
     );
-    
+
     const systemPrompt = [
-      "You are a helpful HR assistant. Extract the following structured information from a candidate's CV:\n", 
+      "You are a helpful HR assistant. Extract the following structured information from a candidate's CV:\n",
       "- Years of Experience (as a string like '5+ years in backend development')\n",
       "- Skills and Frameworks (as a list of keywords; print top5-10 skills of the candidate)\n",
       "- Languages (spoken/written or programming, inferred from context)\n",
       "- Education (summarized in 1–2 lines)\n",
-      "- Summary (brief summary of the CV, max 3 sentences)\n"
-    ].join('\n');
+      "- Summary (brief summary of the CV, max 3 sentences)\n",
+    ].join("\n");
     const userPrompt = `Candidate's CV: ${textCV}`;
-
 
     const { object } = await generateObject({
       model: openai("gpt-4-turbo"),
@@ -155,7 +142,7 @@ export async function run() {
       // prompt: userPrompt, // Use messages instead for better control
       //maxTokens: 150, // Adjust as needed
       temperature: 0.5, // Adjust for creativity vs determinism
-      schema: cvSchema
+      schema: cvSchema,
     });
 
     console.log(object);
@@ -182,7 +169,7 @@ export async function run() {
     skillsAndFrameworks: result.skillsAndFrameworks.join(", "),
     languages: result.languages.join(", "),
     education: result.education,
-    summary: result.summary
+    summary: result.summary,
   };
 
   const existingResults = await readExistingResults();

@@ -4,7 +4,7 @@ import * as path from "path";
 import { generateText } from "ai";
 
 // *** Update this import path ***
-import { run as runSummarizeScript } from "./summarize-text"; // Changed from '../../cli/scripts/summarize-text'
+import { run as runSummarizeScript } from "./summarize-text.js"; // Changed from '../../cli/scripts/summarize-text'
 
 // Mock dependencies (paths using path.resolve(__dirname, '../..') should still be correct)
 vi.mock("fs/promises");
