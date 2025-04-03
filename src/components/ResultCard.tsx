@@ -26,6 +26,14 @@ export function ResultCard({ result }: ResultCardProps) {
         <p className="text-sm text-muted-foreground mb-3">
           {result.originalFilename}
         </p>
+        <p className="text-sm font-medium"> Years of Experience</p>
+        <p>{result.yearsOfExperience}</p>
+        <p className="text-sm font-medium"> Skills and Frameworks</p>
+        <p>{result.skillsAndFrameworks}</p>
+        <p className="text-sm font-medium"> Languages </p>
+        <p>{result.languages}</p>
+        <></>
+        <></>
         <p className="text-sm font-medium">Summary:</p>
         <p>{result.summary}</p>
       </CardContent>
