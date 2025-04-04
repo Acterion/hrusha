@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
-import { Candidate } from "@types";
-import { ResultCard } from "@/components/CandidateCard";
+import { Candidate, schemas } from "@types";
+import { CandidateCard } from "@/components/CandidateCard";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -17,17 +17,26 @@ function App() {
       setLoading(true);
       setError(null);
       try {
-        // Fetch from the public directory (served at root by Vite)
-        const response = await fetch("/results.json"); // Fetch from public/results.json
+        // Fetch from the public directory
+        const response = await fetch("/candidates.json");
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const data: Candidate[] = await response.json();
-        setCandidates(data);
+
+        const data = await response.json();
+
+        // Validate with Zod
+        const parseResult = schemas.Candidate.array().safeParse(data);
+        if (!parseResult.success) {
+          throw new Error(`Invalid data format: ${parseResult.error.message}`);
+        }
+
+        setCandidates(parseResult.data);
       } catch (e: any) {
-        console.error("Failed to fetch results:", e);
+        console.error("Failed to fetch candidates:", e);
         setError(
-          `Failed to load results: ${e.message}. Make sure 'public/results.json' exists and is valid JSON.`
+          `Failed to load candidates: ${e.message}. Make sure 'public/candidates.json' exists and is valid.`
         );
       } finally {
         setLoading(false);
@@ -46,8 +55,7 @@ function App() {
       processedCandidates = processedCandidates.filter(
         (candidate) =>
           candidate.cv.summary.toLowerCase().includes(lowerCaseFilter) ||
-          candidate.cv.fileName.toLowerCase().includes(lowerCaseFilter) ||
-          candidate.name.toLowerCase().includes(lowerCaseFilter)
+          candidate.cv.fileName.toLowerCase().includes(lowerCaseFilter)
       );
     }
     return processedCandidates;
@@ -56,7 +64,7 @@ function App() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6 text-center">
-        AI Summarization Results
+        Candidate Management
       </h1>
 
       <div className="controls bg-card p-4 rounded-lg shadow mb-6 flex flex-wrap items-end gap-4">
@@ -80,7 +88,7 @@ function App() {
       </div>
 
       {loading && (
-        <p className="text-center text-blue-500">Loading results...</p>
+        <p className="text-center text-blue-500">Loading candidates...</p>
       )}
       {error && (
         <p className="text-center text-red-500 bg-red-100 p-3 rounded">
@@ -92,11 +100,11 @@ function App() {
         <div>
           {filteredAndSortedResults.length > 0 ? (
             filteredAndSortedResults.map((candidate) => (
-              <ResultCard key={candidate.id} candidate={candidate} />
+              <CandidateCard key={candidate.id} candidate={candidate} />
             ))
           ) : (
             <p className="text-center text-gray-500">
-              No results found matching your criteria.
+              No candidates found matching your criteria.
             </p>
           )}
         </div>

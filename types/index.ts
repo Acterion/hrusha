@@ -1,3 +1,16 @@
+import { z } from "zod";
+import {
+  DecisionEnum,
+  StatusEnum,
+  GradeSchema,
+  EvalSchema,
+  JobDescriptionSchema,
+  CVSchema,
+  HASchema,
+  CandidateSchema,
+} from "./schemas";
+
+// Export enums
 export enum Decision {
   StrongNo = "strong_no",
   No = "no",
@@ -17,64 +30,22 @@ export enum Status {
   rejected = "rejected",
 }
 
-export interface Grade {
-  name: string;
-  description: string;
-  scale: string;
-}
+// Export type interfaces inferred from the Zod schemas
+export type Grade = z.infer<typeof GradeSchema>;
+export type Eval = z.infer<typeof EvalSchema>;
+export type JobDescription = z.infer<typeof JobDescriptionSchema>;
+export type CV = z.infer<typeof CVSchema>;
+export type HA = z.infer<typeof HASchema>;
+export type Candidate = z.infer<typeof CandidateSchema>;
 
-export interface JobDescription {
-  id: string;
-  name: string;
-  description: string;
-  grades: Grade[];
-}
-export interface Eval {
-  name: string;
-  reason: string;
-  value: string;
-}
-
-export interface CV {
-  id: string;
-  name: string;
-  surname: string;
-  email: string;
-  phone: string;
-  summary: string;
-  gradesEval: Eval[];
-  fileName: string;
-}
-
-export interface HA {
-  id: string;
-  name: string;
-  repo: string;
-  description: string;
-  status: "completed" | "in_progress" | "not_started";
-  grades: Grade[];
-  gradesEval: Eval[];
-}
-
-export interface Candidate {
-  id: string;
-  name: string;
-  surname: string;
-  cv: CV;
-  ha: HA;
-  decision: Decision;
-  status: Status;
-  lastUpdated: number; // Timestamp
-  createdAt: number; // Timestamp
-}
-
-export interface SummaryResult {
-  id: string;
-  timestamp: number;
-  originalFilename: string;
-  yearsOfExperience: string;
-  skillsAndFrameworks: string;
-  languages: string;
-  education: string;
-  summary: string;
-}
+// Also export the schemas directly
+export const schemas = {
+  Decision: DecisionEnum,
+  Status: StatusEnum,
+  Grade: GradeSchema,
+  Eval: EvalSchema,
+  JobDescription: JobDescriptionSchema,
+  CV: CVSchema,
+  HA: HASchema,
+  Candidate: CandidateSchema,
+};

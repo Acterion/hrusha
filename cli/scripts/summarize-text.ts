@@ -4,18 +4,10 @@ import chalk from "chalk";
 import { generateText, CoreMessage } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { fileURLToPath } from "url";
-
 import { generateObject } from "ai";
-import { z } from "zod";
-import { SummaryResult } from "@types";
 
-const cvSchema = z.object({
-  yearsOfExperience: z.string(),
-  skillsAndFrameworks: z.array(z.string()),
-  languages: z.array(z.string()),
-  education: z.string(),
-  summary: z.string(),
-});
+// Import types and schemas
+import { Candidate, Decision, Status, schemas } from "@types";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,46 +18,62 @@ const JOB_DESCRIPTION_PATH = path.resolve(
   __dirname,
   "../../data/input/job_description.txt"
 );
-// Output to public dir for frontend access. Changed from data/output/result.txt
-const OUTPUT_FILE_PATH = path.resolve(__dirname, "../../public/results.json");
+// Output to public dir for frontend access
+const CANDIDATES_FILE_PATH = path.resolve(
+  __dirname,
+  "../../public/candidates.json"
+);
 
-async function readExistingResults(): Promise<SummaryResult[]> {
+async function readExistingCandidates(): Promise<Candidate[]> {
   try {
-    await fs.access(OUTPUT_FILE_PATH); // Check if file exists
-    const data = await fs.readFile(OUTPUT_FILE_PATH, "utf-8");
-    return JSON.parse(data) as SummaryResult[];
+    await fs.access(CANDIDATES_FILE_PATH); // Check if file exists
+    const data = await fs.readFile(CANDIDATES_FILE_PATH, "utf-8");
+    const parsed = JSON.parse(data);
+
+    const result = schemas.Candidate.array().safeParse(parsed);
+    if (!result.success) {
+      console.error(
+        chalk.yellow("Invalid candidates data in file:"),
+        result.error
+      );
+      return [];
+    }
+    return result.data;
   } catch (error: any) {
-    // If file doesn't exist or is invalid JSON, return empty array
     if (error.code === "ENOENT") {
-      console.log(chalk.yellow("results.json not found, creating a new one."));
+      console.log(
+        chalk.yellow("candidates.json not found, creating a new one.")
+      );
       return [];
     } else {
-      console.error(chalk.red("Error reading existing results file:"), error);
-      return []; // Start fresh if parsing fails
+      console.error(
+        chalk.red("Error reading existing candidates file:"),
+        error
+      );
+      return [];
     }
   }
 }
 
-async function writeResults(results: SummaryResult[]): Promise<void> {
+async function writeCandidates(candidates: Candidate[]): Promise<void> {
   try {
-    // Ensure the directory exists (needed if public/ doesn't exist initially)
-    await fs.mkdir(path.dirname(OUTPUT_FILE_PATH), { recursive: true });
+    const validatedCandidates = schemas.Candidate.array().parse(candidates);
+
+    await fs.mkdir(path.dirname(CANDIDATES_FILE_PATH), { recursive: true });
     await fs.writeFile(
-      OUTPUT_FILE_PATH,
-      JSON.stringify(results, null, 2),
+      CANDIDATES_FILE_PATH,
+      JSON.stringify(validatedCandidates, null, 2),
       "utf-8"
     );
-    console.log(chalk.cyan(`Results saved to ${OUTPUT_FILE_PATH}`));
+    console.log(chalk.cyan(`Candidates saved to ${CANDIDATES_FILE_PATH}`));
   } catch (error) {
-    console.error(chalk.red("Error writing results file:"), error);
+    console.error(chalk.red("Error writing candidates file:"), error);
   }
 }
 
-// Main function for this script, exported for the CLI runner
 export async function run() {
-  console.log(chalk.magenta("Starting text summarization process..."));
+  console.log(chalk.magenta("Starting CV summarization process..."));
 
-  // 1. Check for API Key
   if (!process.env.OPENAI_API_KEY) {
     console.error(
       chalk.red("❌ Error: OPENAI_API_KEY environment variable is not set.")
@@ -79,23 +87,10 @@ export async function run() {
     process.exit(1);
   }
 
-  // 2. Read Input File
-  /*let inputText: string;
-  try {
-    inputText = await fs.readFile(INPUT_FILE_PATH, "utf-8");
-    console.log(chalk.blue(`Read input file: ${INPUT_FILE_PATH}`));
-  } catch (error) {
-    console.error(
-      chalk.red(`❌ Error reading input file (${INPUT_FILE_PATH}):`),
-      error
-    );
-    process.exit(1);
-  }
-*/
   let textCV: string;
   try {
     textCV = await fs.readFile(CV_FILE_PATH, "utf-8");
-    console.log(chalk.blue("Read CV: ${CV_FILE_PATH}"));
+    console.log(chalk.blue(`Read CV: ${CV_FILE_PATH}`));
   } catch (error) {
     console.error(
       chalk.red(`❌ Error reading input file (${CV_FILE_PATH}):`),
@@ -107,7 +102,7 @@ export async function run() {
   let textJobDescription: string;
   try {
     textJobDescription = await fs.readFile(JOB_DESCRIPTION_PATH, "utf-8");
-    console.log(chalk.blue("Read CV: ${JOB_DESCRIPTION_PATH}"));
+    console.log(chalk.blue(`Read Job Description: ${JOB_DESCRIPTION_PATH}`));
   } catch (error) {
     console.error(
       chalk.red(`❌ Error reading input file (${JOB_DESCRIPTION_PATH}):`),
@@ -117,7 +112,6 @@ export async function run() {
   }
 
   // 3. Summarize using Vercel AI SDK
-  let result: any;
   try {
     console.log(
       chalk.blue("Generating summary using Vercel AI SDK (OpenAI)...")
@@ -131,27 +125,85 @@ export async function run() {
       "- Education (summarized in 1–2 lines)\n",
       "- Summary (brief summary of the CV, max 3 sentences)\n",
     ].join("\n");
+
     const userPrompt = `Candidate's CV: ${textCV}`;
 
-    const { object } = await generateObject({
+    // Use our Zod schema directly with AI SDK
+    const { object: cvSummary } = await generateObject({
       model: openai("gpt-4-turbo"),
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
-      ] as CoreMessage[], // Cast to CoreMessage[]
-      // prompt: userPrompt, // Use messages instead for better control
-      //maxTokens: 150, // Adjust as needed
-      temperature: 0.5, // Adjust for creativity vs determinism
-      schema: cvSchema,
+      ] as CoreMessage[],
+      temperature: 0.5,
+      schema: schemas.CV.shape.summary,
     });
 
-    console.log(object);
+    console.log(cvSummary);
 
-    result = object;
-    console.log(chalk.green("Summary generated successfully."));
-    // console.log(chalk.gray('--- Summary ---'));
-    // console.log(chalk.gray(summary));
-    // console.log(chalk.gray('---------------'));
+    // Extract name and surname from the CV text or use placeholders
+    // This is a simple implementation - you might want to enhance this with AI
+    const nameMatch = textCV.match(/(?:name|nombre):\s*([^\n,]+)/i);
+    const name = nameMatch ? nameMatch[1].trim() : "Unknown";
+    const surnameMatch = textCV.match(
+      /(?:surname|last name|apellido):\s*([^\n,]+)/i
+    );
+    const surname = surnameMatch ? surnameMatch[1].trim() : "Candidate";
+
+    // Extract email and phone or use placeholders
+    const emailMatch = textCV.match(
+      /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/i
+    );
+    const email = emailMatch ? emailMatch[0] : "email@example.com";
+    const phoneMatch =
+      textCV.match(/(?:phone|tel|telefono):\s*([0-9+\-\s()]{7,})/i) ||
+      textCV.match(/([0-9+\-\s()]{7,})/i);
+    const phone = phoneMatch ? phoneMatch[1].trim() : "000-000-0000";
+
+    // 4. Create a new Candidate
+    const candidateData = {
+      id: `candidate-${Date.now()}-${Math.random()
+        .toString(36)
+        .substring(2, 8)}`,
+      name,
+      surname,
+      cv: {
+        id: `cv-${Date.now()}`,
+        name,
+        surname,
+        email,
+        phone,
+        summary: cvSummary,
+        gradesEval: [], // No evaluations initially
+        fileName: path.basename(CV_FILE_PATH),
+      },
+      ha: {
+        id: `ha-${Date.now()}`,
+        name: "Home Assignment",
+        repo: "",
+        description: "Not assigned yet",
+        status: "not_started" as const,
+        grades: [],
+        gradesEval: [],
+      },
+      decision: Decision.Maybe, // Default decision
+      status: Status.applied, // Initial status
+      lastUpdated: Date.now(),
+      createdAt: Date.now(),
+    };
+
+    // Validate the candidate with Zod
+    const newCandidate = schemas.Candidate.parse(candidateData);
+
+    const existingCandidates = await readExistingCandidates();
+    const updatedCandidates = [...existingCandidates, newCandidate];
+
+    await writeCandidates(updatedCandidates);
+
+    console.log(
+      chalk.green("CV summarized and candidate created successfully.")
+    );
+    console.log(chalk.cyan(`Candidate ID: ${newCandidate.id}`));
   } catch (error) {
     console.error(
       chalk.red("❌ Error generating summary via Vercel AI SDK:"),
@@ -159,29 +211,4 @@ export async function run() {
     );
     process.exit(1);
   }
-
-  // 4. Prepare and Save Output
-  const newResult: SummaryResult = {
-    id: `sum-<span class="math-inline">\{Date\.now\(\)\}\-</span>{Math.random().toString(36).substring(2, 8)}`, // Simple unique ID
-    timestamp: Date.now(),
-    originalFilename: path.basename(CV_FILE_PATH),
-    yearsOfExperience: result.yearsOfExperience,
-    skillsAndFrameworks: result.skillsAndFrameworks.join(", "),
-    languages: result.languages.join(", "),
-    education: result.education,
-    summary: result.summary,
-  };
-
-  const existingResults = await readExistingResults();
-  const updatedResults = [...existingResults, newResult];
-
-  await writeResults(updatedResults);
 }
-
-// Allow running the script directly if needed (e.g., node cli/scripts/summarize-text.js after tsc)
-// if (require.main === module) {
-//     run().catch(err => {
-//         console.error(chalk.red("Script execution failed: "), err);
-//         process.exit(1);
-//     });
-// }

@@ -1,4 +1,4 @@
-import { Candidate } from "@types"; // Changed from @types/index
+import { Candidate, schemas } from "@types";
 import {
   Card,
   CardContent,
@@ -7,18 +7,32 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-interface ResultCardProps {
+import { formatZodError } from "@/utils/validation";
+
+interface CandidateCardProps {
   candidate: Candidate;
 }
 
-export function ResultCard({ candidate }: ResultCardProps) {
+export function CandidateCard({ candidate }: CandidateCardProps) {
+  // Optional validation with Zod (helpful for debugging)
+  const validationResult = schemas.Candidate.safeParse(candidate);
+  if (!validationResult.success) {
+    console.warn(
+      "Invalid candidate data:",
+      formatZodError(validationResult.error)
+    );
+    // Could render fallback UI here if needed
+  }
+
   const formattedDate = new Date(candidate.lastUpdated).toLocaleString();
 
   return (
     <Card className="mb-4">
       <CardHeader>
-        <CardTitle>Summary</CardTitle>
-        <CardDescription>Generated on: {formattedDate}</CardDescription>
+        <CardTitle>
+          {candidate.name} {candidate.surname}
+        </CardTitle>
+        <CardDescription>Updated: {formattedDate}</CardDescription>
       </CardHeader>
       <CardContent>
         <p className="text-sm font-medium">Original File:</p>
@@ -26,7 +40,8 @@ export function ResultCard({ candidate }: ResultCardProps) {
           {candidate.cv.fileName}
         </p>
         <p className="text-sm font-medium">Summary:</p>
-        <p>{candidate.cv.summary}</p>
+        <p className="mb-3">{candidate.cv.summary}</p>
+
         <p className="text-sm font-medium">Decision:</p>
         <p>{candidate.decision}</p>
       </CardContent>
