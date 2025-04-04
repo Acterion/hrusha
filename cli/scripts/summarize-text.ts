@@ -5,6 +5,7 @@ import { generateText, CoreMessage } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { fileURLToPath } from "url";
 import { generateObject } from "ai";
+import { z } from "zod";
 
 // Import types and schemas
 import { Candidate, Decision, Status, schemas } from "@types";
@@ -13,11 +14,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // CV and Job Description location
-const CV_FILE_PATH = path.resolve(__dirname, "../../data/input/cv.txt");
-const JOB_DESCRIPTION_PATH = path.resolve(
-  __dirname,
-  "../../data/input/job_description.txt"
-);
+const CV_FILE_PATH = path.resolve(__dirname, "../../data/input/example.txt");
+// const JOB_DESCRIPTION_PATH = path.resolve(
+//   __dirname,
+//   "../../data/input/job_description.txt"
+// );
 // Output to public dir for frontend access
 const CANDIDATES_FILE_PATH = path.resolve(
   __dirname,
@@ -99,13 +100,13 @@ export async function run() {
     process.exit(1);
   }
 
-  let textJobDescription: string;
+  // let textJobDescription: string;
   try {
-    textJobDescription = await fs.readFile(JOB_DESCRIPTION_PATH, "utf-8");
-    console.log(chalk.blue(`Read Job Description: ${JOB_DESCRIPTION_PATH}`));
+    // textJobDescription = await fs.readFile(JOB_DESCRIPTION_PATH, "utf-8");
+    // console.log(chalk.blue(`Read Job Description: ${JOB_DESCRIPTION_PATH}`));
   } catch (error) {
     console.error(
-      chalk.red(`❌ Error reading input file (${JOB_DESCRIPTION_PATH}):`),
+      // chalk.red(`❌ Error reading input file (${JOB_DESCRIPTION_PATH}):`),
       error
     );
     process.exit(1);
@@ -129,16 +130,16 @@ export async function run() {
     const userPrompt = `Candidate's CV: ${textCV}`;
 
     // Use our Zod schema directly with AI SDK
-    const { object: cvSummary } = await generateObject({
+    const r = await generateObject<{ result: string }>({
       model: openai("gpt-4-turbo"),
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ] as CoreMessage[],
       temperature: 0.5,
-      schema: schemas.CV.shape.summary,
+      schema: z.object({ result: z.string() }),
     });
-
+    const cvSummary = r.object.result;
     console.log(cvSummary);
 
     // Extract name and surname from the CV text or use placeholders

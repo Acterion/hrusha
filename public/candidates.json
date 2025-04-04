@@ -1,0 +1,30 @@
+[
+  {
+    "id": "candidate-1743811155051-66a0uw",
+    "name": "Unknown",
+    "surname": "Candidate",
+    "cv": {
+      "id": "cv-1743811155051",
+      "name": "Unknown",
+      "surname": "Candidate",
+      "email": "email@example.com",
+      "phone": "000-000-0000",
+      "summary": "Years of Experience: Not specified in the CV snippet provided.\n\nSkills and Frameworks: Vite, React, TypeScript, Shadcn UI, Vitest, Vercel AI SDK.\n\nLanguages: English (from the context of the provided text).\n\nEducation: Not specified in the CV snippet provided.\n\nSummary: The candidate appears to have experience with modern frontend tools and libraries, including Vite, React, TypeScript, and others. They are familiar with AI technologies and have worked on integrating AI models into web applications using the Vercel AI SDK.",
+      "gradesEval": [],
+      "fileName": "example.txt"
+    },
+    "ha": {
+      "id": "ha-1743811155051",
+      "name": "Home Assignment",
+      "repo": "",
+      "description": "Not assigned yet",
+      "status": "not_started",
+      "grades": [],
+      "gradesEval": []
+    },
+    "decision": "maybe",
+    "status": "applied",
+    "lastUpdated": 1743811155051,
+    "createdAt": 1743811155051
+  }
+]
