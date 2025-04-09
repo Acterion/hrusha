@@ -1,0 +1,86 @@
+Dima Pidorasov
+
+Results-driven Software Engineer with over 5 years of experience in mobile, AR/VR, and XR
+development, specializing in Unity, Kotlin, and cloud technologies. Proven track record of
+launching revenue-generating B2B applications and optimizing tools for industry leaders like
+Siemens and Volkswagen.
+
+PROFESSIONAL EXPERIENCE
+Lead Software Engineer at Interlake GmbH
+Nov 2022 - Now
+• Led development of a mobile B2B AR application for digital learning, using C#, Unity,
+and Azure.
+• Launched app on Playstore and Appstore, generating €20,000+ in annual revenue
+within the first year.
+• Reworked the non-AR parts of the app to use Kotlin Multiplatform.
+Technology stack: C#, .NET, Kotlin, Swift, SwiftUI, Compose Multiplatform, Kotlin
+Multiplatform, Unity, React, Azure, GCP, Nunit, Docker, Terraform, CosmosDB, RestAPI,
+UniTask, Zenject, Timeline
+Product Website
+Mobile Developer at Digital Health Cluster at HPI
+Sept 2022 - Aug 2023
+• Developed features for SensorHub Android app, including Biofeedback and EEG
+sensor integration, using Kotlin and Jetpack Compose with MVVM architecture.
+Enhanced app with permission management, data security and AWS-backed
+storage.
+• Introduced Junit+Mockito tests for every featured developed in the scope of the
+project.
+• Presented solution to German Minister of Health Karl Lauterbach, showcasing project
+impact.
+Technology stack: Kotlin, Android SDK, Gradle, Jetpack Compose, MVVM architecture,
+Dagger-Hilt, Espresso, Junit, Amazon S3, Bluetooth, PostgreSQL, AWS, gRPC, Docker,
+Python
+Project Promo
+•
+VR/AR Developer at Inpro GmbH
+Dec 2019 – Oct 2023
+• Built cross-platform VR/AR tools for Siemens, Volkswagen, and Sabic using Unity,
+C#,.NET and ARCore/ARKit.
+• Created 5 Unity plugins, reducing debugging time by 80%.
+• Improved UI for Twino and Pointo solutions, boosting user satisfaction by 60%.
+• Developed custom plugins for Siemens’ Process Simulate.
+Technology Stack: C#, Unity, .NET, ARCore, ARKit, VRTK, UniRx, RestAPI, Websocket,
+gRPC, Docker, Kubernetes,
+Twino Solution
+XR Developer at Xapio GmbH
+Oct 2018 - Nov 2019
+• Designed and developed MVPs for Microsoft Hololens, including Escape Room and
+Machine Maintenance apps.
+Utilized C#, Unity, .NET, and Azure to deliver innovative XR solutions.
+Explored use cases to enhance business applications with MRTK integration.
+Technology stack: C#, Unity, .NET, Microsoft Azure, MRTK
+•
+•EDUCATION
+B.Sc. in IT Systems Engineering
+Oct 2019 – Sept 2023
+Hasso Plattner Institute
+•
+•
+Developed a Python-based Machine Learning pipeline for real-time emotion
+recognition using EEG data from wearable devices, integrating it into SensorHub with
+intuitive visualizations—merging AI/machine learning, mobile tech, and HCI.
+Gained proficiency in Human-Computer Interaction (e.g., VR gesture recognition)
+and Business Process Technologies (e.g., Apache Flink, process mining) from
+industry leaders Professors Baudisch and Weske, enhancing my software engineering
+versatility.
+TECHNICAL SKILLS
+–
+–
+–
+–
+–
+–
+Programming: C#, Kotlin, Python, Java, SQL
+Frameworks/Tools: Unity, .NET, React, Jetpack Compose, Docker, Kubernetes,
+Terraform, NUnit, Espresso, Junit, Spring Boot, KMP, Room, Koin, Ktor, Coroutines
+Cloud: Azure, AWS, GCP, CosmosDB, Amazon S3, Mockito
+APIs/Protocols: RestAPI, gRPC, Websocket, GraphQL
+Methodologies: Agile, MVVM, MVC, Design Thinking, Software Architecture, Clean
+Architecture, SOLID, TDD, XP
+Other: ARCore, ARKit, MRTK, VRTK, UniRx, Zenject, Timeline, Kafka, Apache Flink,
+Jira, SVN, Git, UML, A/B tests, Langchain, RAG, Claude, Cursor
+LANGUAGES
+–English (fluent)
+–German (excellent command)
+–Russian (native)
+–Greek (very good command)

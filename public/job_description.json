@@ -1,0 +1,27 @@
+{
+  "id": "asdiajwkjwahfrlkjsaem",
+  "name": "Backend Developer",
+  "description": "Senior Back-End Engineer position at a WealthTech startup, Realist, focusing on building and maintaining back-end systems using Node.js, TypeScript, and NestJS. Responsibilities include developing APIs, implementing CI/CD pipelines, and integrating various technologies. Requires 5+ years of back-end development experience and proficiency in multiple programming languages and tools. Preferred skills include Redis, WSL, and UI libraries.",
+  "grades": [
+    {
+      "name": "Back-end development experience",
+      "description": "Requires at least 5 years of back-end development experience.",
+      "scale": "1-100"
+    },
+    {
+      "name": "Node.js experience",
+      "description": "Requires at least 3 years of experience with Node.js.",
+      "scale": "1-100"
+    },
+    {
+      "name": "TypeScript proficiency",
+      "description": "Must be proficient in TypeScript.",
+      "scale": "1-100"
+    },
+    {
+      "name": "JavaScript proficiency",
+      "description": "Must be proficient in JavaScript.",
+      "scale": "1-100"
+    }
+  ]
+}
