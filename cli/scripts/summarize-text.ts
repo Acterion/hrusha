@@ -1,19 +1,29 @@
-import * as fs from "fs/promises";
-import * as path from "path";
 import chalk from "chalk";
+import * as path from "path";
 import { fileURLToPath } from "url";
 
-import { createCandidate, readExistingCandidates, writeCandidates } from '../core/candidates'
-import { readCV, summarizeCV, extractCVMeta, evaluateGrades } from '../core/processCV'
-import { readJobDescription } from '../core/processJobDescription'
 import { ensureAPIKey } from "cli/core/ensureAPIKey";
+import {
+  createCandidate,
+  readExistingCandidates,
+  writeCandidates,
+} from "../core/candidates";
+import {
+  evaluateGrades,
+  extractCVMeta,
+  readCV,
+  summarizeCV,
+} from "../core/processCV";
+import { readJobDescription } from "../core/processJobDescription";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const JOB_DESCRIPTION_PATH = path.resolve(__dirname, "../../public/job_description.json");
+const JOB_DESCRIPTION_PATH = path.resolve(
+  __dirname,
+  "../../public/job_description.json"
+);
 const CV_FILE_PATH = path.resolve(__dirname, "../../data/input/cv.txt");
-
 
 export async function run() {
   console.log(chalk.magenta("Starting CV summarization process..."));
@@ -27,13 +37,12 @@ export async function run() {
   const JSONJobDescription = await readJobDescription(JOB_DESCRIPTION_PATH);
   const grades = JSONJobDescription.grades;
 
-
   // 3. Summarize candidate's CV
   try {
     console.log(
       chalk.blue("Generating summary using Vercel AI SDK (OpenAI)...")
     );
-    
+
     const cvSummary = await summarizeCV(textCV);
 
     // Evaluate candidate's CV
@@ -42,7 +51,7 @@ export async function run() {
     // Extract metainformation about the candidate
     const name = await extractCVMeta(textCV, "first name");
     const surname = await extractCVMeta(textCV, "last name");
-    const email = "govno@gmail.com" //await extractCVMeta(textCV, "email");
+    const email = "govno@gmail.com"; //await extractCVMeta(textCV, "email");
     const phone = await extractCVMeta(textCV, "Phone Number");
 
     // 4. Create a new Candidate

@@ -1,14 +1,11 @@
 import * as fs from "fs/promises";
 import * as path from "path";
-import chalk from "chalk";
 import { fileURLToPath } from "url";
-
 
 import { JobDescriptionSchema } from "types/schemas";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 
 export async function readJobDescription(jobDescriptionPath: string) {
   try {
@@ -17,6 +14,8 @@ export async function readJobDescription(jobDescriptionPath: string) {
     const result = JobDescriptionSchema.parse(content);
     return result;
   } catch (error: any) {
-    throw new Error(`❌ Failed to read or parse Job Description at "${jobDescriptionPath}": ${error.message}`);
+    throw new Error(
+      `❌ Failed to read or parse Job Description at "${jobDescriptionPath}": ${error.message}`
+    );
   }
 }

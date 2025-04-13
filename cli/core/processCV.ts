@@ -1,7 +1,6 @@
 import * as fs from "fs/promises";
 import * as path from "path";
-import chalk from "chalk";
-import { generateText, CoreMessage } from "ai";
+import { CoreMessage } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { fileURLToPath } from "url";
 import { generateObject } from "ai";
@@ -10,10 +9,8 @@ import { z } from "zod";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
 // Import types and schemas
-import { Candidate, Decision, Status, schemas } from "@types";
-import { EvalSchema, GradeSchema, JobDescriptionSchema } from "types/schemas";
+import { EvalSchema, GradeSchema } from "types/schemas";
 
 export async function readCV(pathToCV: string): Promise<string> {
   try {
@@ -24,7 +21,6 @@ export async function readCV(pathToCV: string): Promise<string> {
   }
 }
 
-
 export async function extractCVMeta(cvText: string, info: string) {
   const systemPrompt = `
   Your task is to read CV and extract their ${info} from their CV.
@@ -33,19 +29,22 @@ export async function extractCVMeta(cvText: string, info: string) {
   const userPrompt = `The candidate's CV: ${cvText}`;
 
   const r = await generateObject<{ result: string }>({
-      model: openai("gpt-4-turbo"),
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ] as CoreMessage[],
-      temperature: 0.5,
-      schema: z.object({ result: z.string() }),
-    });
-    return r.object.result;
+    model: openai("gpt-4-turbo"),
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ] as CoreMessage[],
+    temperature: 0.5,
+    schema: z.object({ result: z.string() }),
+  });
+  return r.object.result;
 }
 
-export async function evaluateSingleGrade(grade: z.infer<typeof GradeSchema>, textCV: string) {
-    const systemPrompt = `
+export async function evaluateSingleGrade(
+  grade: z.infer<typeof GradeSchema>,
+  textCV: string
+) {
+  const systemPrompt = `
     You are a rigorous and intelligent HR evaluator.
 
     You will be given:
@@ -64,19 +63,19 @@ export async function evaluateSingleGrade(grade: z.infer<typeof GradeSchema>, te
     value: string,      // number or level on the specified scale
     reason: string      // short explanation why this score was assigned
     `;
-    const userPrompt = `The candidate's CV is ${textCV} \n The grade to be graded is: ${grade}`;
+  const userPrompt = `The candidate's CV is ${textCV} \n The grade to be graded is: ${grade}`;
 
-    const r = await generateObject<{ result: z.infer<typeof EvalSchema>[] }>({
-        model: openai("gpt-4-turbo"),
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ] as CoreMessage[],
-        temperature: 0.5,
-        schema: EvalSchema,
-      });
-    
-      return r.object;
+  const r = await generateObject<{ result: z.infer<typeof EvalSchema>[] }>({
+    model: openai("gpt-4-turbo"),
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ] as CoreMessage[],
+    temperature: 0.5,
+    schema: z.object({ result: z.array(EvalSchema) }),
+  });
+
+  return r.object.result[0];
 }
 
 export async function evaluateGrades(
@@ -88,7 +87,7 @@ export async function evaluateGrades(
   for (const grade of grades) {
     try {
       const result = await evaluateSingleGrade(grade, textCV);
-      results.push(result); // result — это EvalSchema
+      results.push(result);
     } catch (e) {
       console.error(`❌ Failed to evaluate grade: ${grade.name}`, e);
     }
@@ -97,24 +96,22 @@ export async function evaluateGrades(
   return results;
 }
 
-
 export async function summarizeCV(textCV: string) {
-    const systemPrompt = `
+  const systemPrompt = `
     You are an intelligent HR assistant. 
     Your task is to read the candidate's CV thoroughly and summarize it in 2-4 sentences highlighting candidate's experience and inferred skills from their experience.
     `;
-    const userPrompt = `The candidate's CV: ${textCV}`;
+  const userPrompt = `The candidate's CV: ${textCV}`;
 
-    const r = await generateObject<{ result: string }>({
-        model: openai("gpt-4-turbo"),
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ] as CoreMessage[],
-        temperature: 0.5,
-        schema: z.object({ result: z.string() }),
-      });
-      const cvSummary = r.object.result;
-      return cvSummary;
-
+  const r = await generateObject<{ result: string }>({
+    model: openai("gpt-4-turbo"),
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ] as CoreMessage[],
+    temperature: 0.5,
+    schema: z.object({ result: z.string() }),
+  });
+  const cvSummary = r.object.result;
+  return cvSummary;
 }
