@@ -47,6 +47,8 @@ export const CVSchema = z.object({
   summary: z.string(),
   gradesEval: z.array(EvalSchema),
   fileName: z.string(),
+  fileHash: z.string(),
+  fileStatus: z.enum(["pending", "processing", "completed", "failed"]),
 });
 
 export const HASchema = z.object({

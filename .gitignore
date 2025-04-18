@@ -22,6 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+*.zip
 
 # Environment variables
 .env
@@ -32,3 +33,6 @@ dist-ssr
 data/output/*
 public/results.json
 .qodo
+
+# Cloudflare
+.wrangler

@@ -1,12 +1,14 @@
 import { useState, useEffect, useMemo } from "react";
-import { Candidate, schemas } from "@types";
-import { CandidateCard } from "@/components/CandidateCard";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Candidate, schemas } from "@/types";
+import { CandidateCard } from "@/app/components/candidate-card";
+import { Input } from "@/app/components/ui/input";
+import { Label } from "@/app/components/ui/label";
+import { Button } from "@/app/components/ui/button";
+import { Link } from "react-router-dom";
 
-import "./App.css"; // Optional custom styles
+import "./Dashboard.css"; // Optional custom styles
 
-function App() {
+export default function Dashboard() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,16 +19,20 @@ function App() {
       setLoading(true);
       setError(null);
       try {
-        // Fetch from the public directory
-        const response = await fetch("/candidates.json");
+        const response = await fetch("/api/candidates");
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const data = await response.json();
+        let data = await response.json();
 
         // Validate with Zod
+        data = data.map((item: any) => ({
+          ...item,
+          cv: JSON.parse(item.cv),
+          ha: JSON.parse(item.ha),
+        }));
         const parseResult = schemas.Candidate.array().safeParse(data);
         if (!parseResult.success) {
           throw new Error(`Invalid data format: ${parseResult.error.message}`);
@@ -35,16 +41,14 @@ function App() {
         setCandidates(parseResult.data);
       } catch (e: any) {
         console.error("Failed to fetch candidates:", e);
-        setError(
-          `Failed to load candidates: ${e.message}. Make sure 'public/candidates.json' exists and is valid.`
-        );
+        setError(`Failed to load candidates: ${e.message}.`);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []); // Empty dependency array means this runs once on mount
+  }, []);
 
   const filteredAndSortedResults = useMemo(() => {
     let processedCandidates = [...candidates];
@@ -109,8 +113,12 @@ function App() {
           )}
         </div>
       )}
+
+      <div className="mt-8 flex justify-center">
+        <Button variant={"link"} asChild size="lg" className="px-8">
+          <Link to="/cv-upload">Upload New CV</Link>
+        </Button>
+      </div>
     </div>
   );
 }
-
-export default App;

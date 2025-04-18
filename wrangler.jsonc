@@ -1,0 +1,39 @@
+{
+  "name": "hrusha",
+  "main": "worker/index.ts",
+  "compatibility_date": "2025-03-07",
+  "compatibility_flags": ["nodejs_compat"],
+  // "site": {
+  //   "bucket": "./dist"
+  // },
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application"
+  },
+  "build": {
+    "command": "npm run build"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "hrusha_db",
+      "database_id": "abdbea73-80d4-450a-a026-376f5f255a70"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "CV_BUCKET",
+      "bucket_name": "candidate-cvs",
+      "preview_bucket_name": "candidate-cvs-dev"
+    }
+  ],
+  "ai": {
+    "binding": "AI"
+  },
+  "observability": {
+    "logs": {
+      "enabled": true
+    }
+  }
+}

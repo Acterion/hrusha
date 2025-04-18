@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist-worker",
+    "types": ["@cloudflare/workers-types"],
+    "target": "ES2022",
+    "module": "ESNext"
+  },
+  "include": ["worker/**/*", "types/**/*", "cli/**/*"]
+}
