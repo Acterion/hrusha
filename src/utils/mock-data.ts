@@ -50,9 +50,6 @@ export function generateFakeCandidates(count: number = 8): Candidate[] {
     const status = statuses[index];
     const decision = decisions[Math.min(index % 5, 4)];
 
-    // Score between 30 and 95
-    const score = 30 + Math.floor(Math.random() * 66);
-
     // Time offsets (for createdAt and lastUpdated)
     const dayMs = 86400000; // 1 day in milliseconds
     const createdAtOffset = dayMs * (i + 1) * 10; // Each candidate created further back in time
@@ -84,17 +81,4 @@ export function generateFakeCandidates(count: number = 8): Candidate[] {
       lastUpdated,
     });
   });
-}
-
-/**
- * Helper function to generate appropriate feedback based on score
- */
-function getFeedbackForScore(score: number): string {
-  if (score >= 90) return "Excellent solution with good architecture.";
-  if (score >= 80) return "Great skills and attention to detail.";
-  if (score >= 70) return "Good understanding of concepts and requirements.";
-  if (score >= 60) return "Solution works but has some issues to address.";
-  if (score >= 50) return "Average performance with room for improvement.";
-  if (score >= 40) return "Solution incomplete and has major issues.";
-  return "Poor code quality and incomplete solution.";
 }
