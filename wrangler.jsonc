@@ -31,6 +31,13 @@
   "ai": {
     "binding": "AI"
   },
+  "workflows": [
+    {
+      "name": "cv-processing-workflow",
+      "binding": "CV_WORKFLOW",
+      "class_name": "CvProcessingWorkflow"
+    }
+  ],
   "observability": {
       "enabled": true,
       "head_sampling_rate": 1

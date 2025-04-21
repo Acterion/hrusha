@@ -36,3 +36,5 @@ public/results.json
 
 # Cloudflare
 .wrangler
+
+.dev.vars

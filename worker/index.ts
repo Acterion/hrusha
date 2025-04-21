@@ -3,15 +3,20 @@ import {
   R2Bucket,
   Fetcher,
   ExecutionContext,
+  Workflow,
 } from "@cloudflare/workers-types";
 import { apiRouter } from "./api";
+import { CvProcessingWorkflow } from "./api/workflows/cv-workflow";
 
 export interface Env {
   DB: D1Database;
   CV_BUCKET: R2Bucket;
   AI: any;
   ASSETS: Fetcher;
+  CV_WORKFLOW: Workflow;
 }
+
+export { CvProcessingWorkflow };
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {

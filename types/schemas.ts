@@ -40,9 +40,6 @@ export const JobDescriptionSchema = z.object({
 
 export const CVSchema = z.object({
   id: z.string(),
-  name: z.string(),
-  surname: z.string(),
-  email: z.string().email(),
   phone: z.string(),
   summary: z.string(),
   gradesEval: z.array(EvalSchema),
@@ -65,10 +62,12 @@ export const CandidateSchema = z.object({
   id: z.string(),
   name: z.string(),
   surname: z.string(),
+  email: z.string().email(),
   cv: CVSchema,
   ha: HASchema,
   decision: DecisionEnum,
   status: StatusEnum,
   lastUpdated: z.number(), // Timestamp
   createdAt: z.number(), // Timestamp
+  fingerprint: z.string(), // name + surname + email
 });

@@ -4,6 +4,7 @@ import { getCandidates } from "./routes/candidates";
 import { cliRouter } from "./routes/cli-bridge";
 import { handleRescanCVs } from "./routes/rescan-cvs";
 import { ExecutionContext } from "@cloudflare/workers-types";
+import { checkCvProcessingWorkflow } from "./workflows/cv-workflow";
 
 export async function apiRouter(
   request: Request,
@@ -12,8 +13,14 @@ export async function apiRouter(
 ) {
   const url = new URL(request.url);
 
-  if (url.pathname === "/api/cv/upload") {
+  if (url.pathname === "/api/cv-upload") {
     return handleCvUpload(request, env);
+  }
+
+  if (url.pathname === "/api/cv-workflow") {
+    if (request.method === "GET") {
+      return checkCvProcessingWorkflow(request, env);
+    }
   }
 
   if (url.pathname === "/api/candidates") {

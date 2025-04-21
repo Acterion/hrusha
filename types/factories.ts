@@ -3,9 +3,6 @@ import { Candidate, CV, Eval, Grade, HA, JobDescription } from "@/types";
 export function createCV(override: Partial<CV> = {}): CV {
   return {
     id: crypto.randomUUID(),
-    name: "",
-    surname: "",
-    email: "",
     phone: "",
     summary: "",
     gradesEval: [],
@@ -65,33 +62,14 @@ export function createCandidate(override: Partial<Candidate> = {}): Candidate {
     id: crypto.randomUUID(),
     name: "",
     surname: "",
+    email: "",
     cv: createCV(),
     ha: createHA(),
     decision: "maybe",
     status: "applied",
     lastUpdated: now,
     createdAt: now,
+    fingerprint: "",
     ...override,
   };
-}
-
-// Helper for creating a candidate from an uploaded CV
-export function createCandidateFromCV(
-  name: string,
-  surname: string,
-  email: string,
-  fileName: string,
-  fileHash: string = ""
-): Candidate {
-  return createCandidate({
-    name,
-    surname,
-    cv: createCV({
-      name,
-      surname,
-      email,
-      fileName,
-      fileHash,
-    }),
-  });
 }

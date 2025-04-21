@@ -69,8 +69,8 @@ export default function Pipeline() {
   };
 
   return (
-    <div className="flex flex-col gap-4 max-w-full">
-      <div className="w-full max-w-6/12 mb-4">
+    <div className="flex flex-col gap-4">
+      <div className="w-full mb-4">
         <div className="flex flex-col gap-4 md:flex-row md:items-end">
           <div className="flex-1">
             <Label htmlFor="search" className="mb-2 block">
@@ -114,14 +114,11 @@ export default function Pipeline() {
           </Button>
         </div>
       </div>
-
-      <div className="max-w-11/12 overflow-x-auto pb-4 border rounded-md">
-        <div className="min-w-max p-4">
-          <KanbanBoard
-            candidates={filteredCandidates}
-            onCandidateMove={handleCandidateMove}
-          />
-        </div>
+      <div className="overflow-auto p-4 border rounded-md">
+        <KanbanBoard
+          candidates={filteredCandidates}
+          onCandidateMove={handleCandidateMove}
+        />
       </div>
     </div>
   );

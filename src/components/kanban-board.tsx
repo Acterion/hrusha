@@ -68,7 +68,6 @@ export function KanbanBoard({ candidates, onCandidateMove }: KanbanBoardProps) {
   // Handle drag end
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    console.log("over", event);
 
     if (over) {
       // Check if the over.id is a status (column)
