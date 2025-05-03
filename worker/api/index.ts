@@ -1,6 +1,6 @@
 import { Env } from "../index";
 import { handleCvUpload } from "./routes/cv-upload";
-import { getCandidates } from "./routes/candidates";
+import { getCandidates, updateCandidateStatus } from "./routes/candidates";
 import { cliRouter } from "./routes/cli-bridge";
 import { handleRescanCVs } from "./routes/rescan-cvs";
 import { ExecutionContext } from "@cloudflare/workers-types";
@@ -25,6 +25,13 @@ export async function apiRouter(
 
   if (url.pathname === "/api/candidates") {
     return getCandidates(request, env);
+  }
+
+  if (url.pathname === "/api/candidate") {
+    if (request.method === "POST") {
+      const { candidateId, status } = await request.json();
+      return updateCandidateStatus(request, env, candidateId, status);
+    }
   }
 
   if (url.pathname.startsWith("/api/cli/")) {

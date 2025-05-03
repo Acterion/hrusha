@@ -49,7 +49,8 @@ export default function CVUpload() {
 
     try {
       const formData = new FormData();
-      formData.append("name", `${data.name} ${data.surname}`);
+      formData.append("name", data.name);
+      formData.append("surname", data.surname);
       formData.append("email", data.email);
       formData.append("cv", data.cv);
 

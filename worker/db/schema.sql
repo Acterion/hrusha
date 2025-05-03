@@ -12,3 +12,5 @@ CREATE TABLE IF NOT EXISTS candidates (
   createdAt INTEGER,
   fingerprint TEXT
 );
+
+-- DELETE FROM candidates WHERE surname == NULL OR surname == '';

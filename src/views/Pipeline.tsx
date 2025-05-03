@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { Candidate, Status } from "@/types";
+import { schemas, type Candidate, type Status } from "@/types";
 import { KanbanBoard } from "@/app/components/kanban-board";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
@@ -13,16 +13,55 @@ import {
 } from "@/app/components/ui/select";
 import { toast } from "@/app/components/ui/sonner";
 import { generateFakeCandidates } from "@/app/utils/mock-data";
+import { Skeleton } from "../components/ui/skeleton";
 
 // Generate fake candidates using our utility function
 const mockCandidates = generateFakeCandidates(8);
 
 export default function Pipeline() {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const [candidates, setCandidates] = useState<Candidate[]>(mockCandidates);
   const [filterText, setFilterText] = useState("");
   const [filterDecision, setFilterDecision] = useState<string>("all");
   const [filteredCandidates, setFilteredCandidates] =
     useState<Candidate[]>(candidates);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch("/api/candidates");
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        let data = await response.json();
+
+        // Validate with Zod
+        data = data.map((item: any) => ({
+          ...item,
+          cv: JSON.parse(item.cv),
+          ha: JSON.parse(item.ha),
+        }));
+        const parseResult = schemas.Candidate.array().safeParse(data);
+        if (!parseResult.success) {
+          throw new Error(`Invalid data format: ${parseResult.error.message}`);
+        }
+
+        setCandidates(parseResult.data);
+      } catch (e: any) {
+        console.error("Failed to fetch candidates:", e);
+        setError(`Failed to load candidates: ${e.message}.`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // Apply filters when candidates, filterText, or filterDecision changes
   useEffect(() => {
@@ -48,7 +87,12 @@ export default function Pipeline() {
   }, [candidates, filterText, filterDecision]);
 
   // Handle moving a candidate to a new status
-  const handleCandidateMove = (candidateId: string, newStatus: Status) => {
+  const handleCandidateMove = async (
+    candidateId: string,
+    newStatus: Status
+  ) => {
+    // Optimistically update the UI
+    const originalCandidates = candidates;
     setCandidates((prev) =>
       prev.map((candidate) =>
         candidate.id === candidateId
@@ -61,12 +105,36 @@ export default function Pipeline() {
       )
     );
 
-    toast.success("Candidate status updated", {
-      description: `Candidate moved to ${newStatus
-        .replace(/([A-Z])/g, " $1")
-        .trim()}`,
-    });
-  };
+    try {
+      // Make the API call to update the backend
+      const response = await fetch(`/api/candidate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus, candidateId }), // Only send necessary data
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to update candidate status: ${response.statusText}`
+        );
+      }
+
+      toast.success("Candidate status updated", {
+        description: `Candidate moved to ${newStatus
+          .replace(/([A-Z])/g, " $1")
+          .trim()}`,
+      });
+    } catch (error) {
+      console.error("Error updating candidate status:", error);
+      // Rollback the optimistic update
+      setCandidates(originalCandidates);
+      toast.error("Error updating candidate status", {
+        description: "Failed to update candidate status. Please try again.",
+      });
+    }
+  }; // <-- Add closing brace for handleCandidateMove here
 
   return (
     <div className="flex flex-col gap-4">
@@ -115,10 +183,22 @@ export default function Pipeline() {
         </div>
       </div>
       <div className="overflow-auto p-4 border rounded-md">
-        <KanbanBoard
-          candidates={filteredCandidates}
-          onCandidateMove={handleCandidateMove}
-        />
+        {loading && (
+          <Skeleton className="text-center text-blue-500">
+            Loading candidates...
+          </Skeleton>
+        )}
+        {error && (
+          <p className="text-center text-red-500 bg-red-100 p-3 rounded">
+            {error}
+          </p>
+        )}
+        {!loading && !error && (
+          <KanbanBoard
+            candidates={filteredCandidates}
+            onCandidateMove={handleCandidateMove}
+          />
+        )}
       </div>
     </div>
   );

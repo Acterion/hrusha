@@ -71,3 +71,12 @@ export const CandidateSchema = z.object({
   createdAt: z.number(), // Timestamp
   fingerprint: z.string(), // name + surname + email
 });
+
+const StageSchema = z.object({
+  id: StatusEnum,
+  name: z.string(),
+  status: z.enum(["completed", "in_progress", "not_started"]),
+  description: z.string(),
+  grades: z.array(GradeSchema),
+  gradesEval: z.array(EvalSchema),
+});
