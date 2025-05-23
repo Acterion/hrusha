@@ -24,7 +24,9 @@ export async function apiRouter(
   }
 
   if (url.pathname === "/api/candidates") {
-    return getCandidates(request, env);
+    if (request.method === "GET"){
+      return getCandidates(request, env);
+    }
   }
 
   if (url.pathname === "/api/candidate") {
