@@ -3,9 +3,10 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import { cloudflare } from "@cloudflare/vite-plugin";
+import devtoolsJson from "vite-plugin-devtools-json";
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), cloudflare()],
+  plugins: [react(), tailwindcss(), cloudflare(), devtoolsJson()],
   resolve: {
     alias: {
       "@/app": path.resolve(__dirname, "./src"),
