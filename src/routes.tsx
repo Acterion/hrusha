@@ -4,6 +4,7 @@ import PositionsView from "@/app/views/Positions";
 import MetricsView from "@/app/views/Metrics";
 import CVUpload from "@/app/views/CV-Upload";
 import { createBrowserRouter } from "react-router-dom";
+import CandidateView from "./views/CandidateView";
 
 export const router = createBrowserRouter([
   {
@@ -17,6 +18,10 @@ export const router = createBrowserRouter([
       {
         path: "positions",
         element: <PositionsView />,
+      },
+      {
+        path: "candidate/:id",
+        element: <CandidateView />,
       },
       {
         path: "metrics",

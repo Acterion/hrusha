@@ -6,6 +6,7 @@ import {
 import { Env } from "../../index";
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
+import { NonRetryableError } from "cloudflare:workflows";
 
 export class CvProcessingWorkflow extends WorkflowEntrypoint<
   Env,
@@ -20,17 +21,26 @@ export class CvProcessingWorkflow extends WorkflowEntrypoint<
     // 1) Retrieve CV from R2
     const fileBuffer = await step.do("retrieve CV", async () => {
       const object = await this.env.CV_BUCKET.get(`${candidateId}/${fileName}`);
-      if (!object) throw new Error("CV not found in bucket");
+      if (!object) throw new NonRetryableError("CV not found in bucket");
+      console.log("CV file retrieved successfully");
       return await object.arrayBuffer();
     });
 
     // 2) Summarize using Vercel AI SDK
     const summary = await step.do("summarize CV", async () => {
       const text = new TextDecoder().decode(fileBuffer);
-      const result = await generateText({
-        model: openai("gpt-4o-mini"),
-        prompt: `Provide a concise summary of the following CV:\n${text}`,
-      });
+      let result = undefined;
+      try {
+        result = await generateText({
+          model: openai("gpt-4o-mini"),
+          prompt: `Provide a concise summary of the following CV:\n${text}`,
+        });
+      } catch (error) {
+        console.error("Error generating CV summary:", error);
+        throw new NonRetryableError("Error generating CV summary:");
+      }
+
+      console.log("Summary generated successfully", result.text);
       return result.text;
     });
 
@@ -79,15 +89,19 @@ export class CvProcessingWorkflow extends WorkflowEntrypoint<
 
 export const checkCvProcessingWorkflow = async (req: Request, env: Env) => {
   const instanceId = new URL(req.url).searchParams.get("instanceId") || "";
-  console.log("Checking workflow status for instanceId:", instanceId);
-  console.log((await env.CV_WORKFLOW.get(instanceId)).status());
   const workflow = await env.CV_WORKFLOW.get(instanceId);
   if (!workflow) {
     return new Response("Workflow not found", { status: 404 });
   }
-
-  return new Response(`Workflow status: ${(await workflow).status()}`, {
-    status: 200,
-  });
+  const status = await workflow.status();
+  return new Response(
+    `Workflow ID: ${instanceId}
+    Workflow status: ${status.status}
+    Workflow error: ${status.error || "None"}
+    Workflow output: ${status.output || "No message"}`,
+    {
+      status: 200,
+    }
+  );
 };
 export default {};

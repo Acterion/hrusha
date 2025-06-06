@@ -12,9 +12,10 @@ import { formatDate } from "@/app/utils";
 
 interface CandidateCardProps {
   candidate: Candidate;
+  onClick?: (candidateId: string) => void;
 }
 
-export function CandidateCard({ candidate }: CandidateCardProps) {
+export function CandidateCard({ candidate, onClick }: CandidateCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
       id: candidate.id,
@@ -44,6 +45,11 @@ export function CandidateCard({ candidate }: CandidateCardProps) {
 
   return (
     <Card
+      onClick={() => {
+        if (onClick) {
+          onClick(candidate.id);
+        }
+      }}
       ref={setNodeRef}
       style={style}
       className="mb-4 cursor-grab active:cursor-grabbing"
@@ -55,9 +61,10 @@ export function CandidateCard({ candidate }: CandidateCardProps) {
           {candidate.name} {candidate.surname}
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-4 pt-0">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
+      <CardContent className="pt-0">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col items-center">
+            <span className="text-sm text-muted-foreground">AI Suggestion</span>
             <Badge
               className={`${
                 decisionColors[
@@ -67,13 +74,22 @@ export function CandidateCard({ candidate }: CandidateCardProps) {
             >
               {formatDecision(candidate.decision)}
             </Badge>
-            <span className="text-xs text-muted-foreground">
-              {formatDate(candidate.lastUpdated)}
-            </span>
           </div>
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {candidate.cv.summary}
-          </p>
+          <div className="flex flex-col items-center justify-between">
+            <span className="text-sm text-muted-foreground">Decision</span>
+            <Badge
+              className={`${
+                decisionColors[
+                  candidate.decision as keyof typeof decisionColors
+                ]
+              } text-white`}
+            >
+              {formatDecision(candidate.decision)}
+            </Badge>
+          </div>
+          <span className="text-xs text-muted-foreground justify-self-center col-span-2">
+            {formatDate(candidate.lastUpdated)}
+          </span>
         </div>
       </CardContent>
     </Card>

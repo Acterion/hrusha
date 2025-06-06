@@ -8,6 +8,26 @@ export async function getCandidates(request: Request, env: Env) {
   return Response.json(results);
 }
 
+export async function getCandidate(
+  request: Request,
+  env: Env,
+  candidateId: string
+) {
+  if (!candidateId) {
+    return new Response("Candidate ID is required", { status: 400 });
+  }
+  const { results } = await env.DB.prepare(
+    `SELECT * FROM candidates WHERE id = ?`
+  )
+    .bind(candidateId)
+    .run();
+  if (results.length === 0) {
+    return new Response("Candidate not found", { status: 404 });
+  }
+
+  return Response.json(results[0]);
+}
+
 export async function updateCandidateStatus(
   request: Request,
   env: Env,

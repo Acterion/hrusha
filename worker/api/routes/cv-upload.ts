@@ -60,8 +60,8 @@ export async function handleCvUpload(request: Request, env: Env) {
     });
 
     await env.DB.prepare(
-      `INSERT INTO candidates (id, name, surname, email, cv, ha, status, decision, lastUpdated, createdAt, fingerprint) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO candidates (id, name, surname, email, cv, ha, status, decision, aiDecision, lastUpdated, createdAt, fingerprint) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
       .bind(
         candidate.id,
@@ -72,6 +72,7 @@ export async function handleCvUpload(request: Request, env: Env) {
         JSON.stringify(candidate.ha),
         candidate.status,
         candidate.decision,
+        candidate.aiDecision,
         candidate.lastUpdated,
         candidate.createdAt,
         candidate.fingerprint
@@ -88,7 +89,7 @@ export async function handleCvUpload(request: Request, env: Env) {
       "Workflow created:",
       wf.id,
       "check status at:",
-      `/api/cv-workflow?instanceId=${wf.id}`
+      `${new URL(request.url).origin}/api/cv-workflow?instanceId=${wf.id}`
     );
 
     return Response.json({
@@ -98,6 +99,8 @@ export async function handleCvUpload(request: Request, env: Env) {
     });
   } catch (error) {
     console.error("Error processing CV upload:", error);
-    return Response.json({ error: error.message }, { status: 500 });
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred";
+    return Response.json({ error: errorMessage }, { status: 500 });
   }
 }

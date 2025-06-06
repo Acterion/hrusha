@@ -65,6 +65,7 @@ export const CandidateSchema = z.object({
   email: z.string().email(),
   cv: CVSchema,
   ha: HASchema,
+  aiDecision: DecisionEnum,
   decision: DecisionEnum,
   status: StatusEnum,
   lastUpdated: z.number(), // Timestamp

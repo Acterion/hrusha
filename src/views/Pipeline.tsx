@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { schemas, type Candidate, type Status } from "@/types";
 import { KanbanBoard } from "@/app/components/kanban-board";
 import { Input } from "@/app/components/ui/input";
@@ -19,6 +20,7 @@ import { Skeleton } from "../components/ui/skeleton";
 const mockCandidates = generateFakeCandidates(8);
 
 export default function Pipeline() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [candidates, setCandidates] = useState<Candidate[]>(mockCandidates);
@@ -134,7 +136,11 @@ export default function Pipeline() {
         description: "Failed to update candidate status. Please try again.",
       });
     }
-  }; // <-- Add closing brace for handleCandidateMove here
+  };
+
+  const handleCandidateClick = (candidateId: string) => {
+    navigate(`/candidate/${candidateId}`);
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -197,6 +203,7 @@ export default function Pipeline() {
           <KanbanBoard
             candidates={filteredCandidates}
             onCandidateMove={handleCandidateMove}
+            onCandidateClick={handleCandidateClick}
           />
         )}
       </div>

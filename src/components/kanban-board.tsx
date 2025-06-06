@@ -16,18 +16,25 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 interface KanbanBoardProps {
   candidates: Candidate[];
   onCandidateMove: (candidateId: string, newStatus: Status) => void;
+  onCandidateClick?: (candidateId: string) => void;
 }
 
-export function KanbanBoard({ candidates, onCandidateMove }: KanbanBoardProps) {
+export function KanbanBoard({
+  candidates,
+  onCandidateMove,
+  onCandidateClick,
+}: KanbanBoardProps) {
   const [activeCandidate, setActiveCandidate] = useState<Candidate | null>(
     null
   );
   const statuses = Object.values(Status);
+  const dragStartTimeRef = useRef<number | null>(null);
+  const draggedCandidateIdRef = useRef<string | null>(null);
 
   // Group candidates by status
   const candidatesByStatus = statuses.reduce((acc, status) => {
@@ -47,9 +54,14 @@ export function KanbanBoard({ candidates, onCandidateMove }: KanbanBoardProps) {
     rejected: "Rejected",
   };
 
-  // Setup sensors for drag and drop
+  // Setup sensors for drag and drop with activation constraints
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      // Add activation constraints to distinguish between clicks and drags
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -57,8 +69,10 @@ export function KanbanBoard({ candidates, onCandidateMove }: KanbanBoardProps) {
 
   // Handle drag start
   const handleDragStart = (event: DragStartEvent) => {
-    console.log("start", event);
     const { active } = event;
+    dragStartTimeRef.current = Date.now();
+    draggedCandidateIdRef.current = active.id.toString();
+
     const activeCandidate = candidates.find((c) => c.id === active.id);
     if (activeCandidate) {
       setActiveCandidate(activeCandidate);
@@ -68,8 +82,16 @@ export function KanbanBoard({ candidates, onCandidateMove }: KanbanBoardProps) {
   // Handle drag end
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    const dragDuration = Date.now() - (dragStartTimeRef.current || 0);
 
-    if (over) {
+    // If the drag was very short, consider it a click
+    if (
+      dragDuration < 200 &&
+      onCandidateClick &&
+      draggedCandidateIdRef.current
+    ) {
+      onCandidateClick(draggedCandidateIdRef.current);
+    } else if (over) {
       // Check if the over.id is a status (column)
       const isColumn = statuses.includes(over.id.toString() as Status);
 
@@ -81,12 +103,13 @@ export function KanbanBoard({ candidates, onCandidateMove }: KanbanBoardProps) {
     }
 
     setActiveCandidate(null);
+    draggedCandidateIdRef.current = null;
+    dragStartTimeRef.current = null;
   };
 
   return (
     <DndContext
       sensors={sensors}
-      //   collisionDetection={rectangleIntersection}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
@@ -102,13 +125,19 @@ export function KanbanBoard({ candidates, onCandidateMove }: KanbanBoardProps) {
               title={statusDisplayNames[status]}
               candidates={candidatesByStatus[status]}
               count={candidatesByStatus[status].length}
+              onCandidateClick={onCandidateClick}
             />
           </SortableContext>
         ))}
       </div>
 
       <DragOverlay>
-        {activeCandidate ? <CandidateCard candidate={activeCandidate} /> : null}
+        {activeCandidate ? (
+          <CandidateCard
+            candidate={activeCandidate}
+            onClick={() => {}} // Disabled during drag
+          />
+        ) : null}
       </DragOverlay>
     </DndContext>
   );

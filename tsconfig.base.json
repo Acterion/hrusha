@@ -16,6 +16,7 @@
       "@/app/*": ["./src/*"],
       "@/types/*": ["./types/*"], // Restore specific alias for @types (resolves to types/index.ts)
       "@/types": ["./types"] // Keep wildcard for subpaths like factories
-    }
+    },
+    "allowImportingTsExtensions": true
   }
 }

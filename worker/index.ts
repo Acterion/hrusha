@@ -30,7 +30,6 @@ export default {
     // For all other routes, let Cloudflare serve the assets
     // The not_found_handling: "single-page-application" setting in wrangler.jsonc
     // will automatically serve index.html when a static asset can't be found
-    // return env.ASSETS.fetch(request.url);
-    // return new Response(null, { status: 404 });
+    return env.ASSETS.fetch(request.url);
   },
 };

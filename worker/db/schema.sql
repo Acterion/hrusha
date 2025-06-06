@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS candidates (
   cv TEXT,
   ha TEXT,
   status TEXT,
+  aiDecision TEXT,
   decision TEXT,
   lastUpdated INTEGER,
   createdAt INTEGER,

@@ -45,7 +45,9 @@ export async function handleRescanCVs(
       message: `Processing ${results.length} CVs`,
       count: results.length,
     });
-  } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    return Response.json({ error: errorMessage }, { status: 500 });
   }
 }

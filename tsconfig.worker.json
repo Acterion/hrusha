@@ -4,7 +4,14 @@
     "outDir": "dist-worker",
     "types": ["@cloudflare/workers-types"],
     "target": "ES2022",
-    "module": "ESNext"
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "paths": {
+      "cloudflare:*": [
+        "./node_modules/@cloudflare/workers-types/experimental/cloudflare-*",
+        "./node_modules/@cloudflare/workers-types/experimental"
+      ]
+    }
   },
   "include": ["worker/**/*", "types/**/*", "cli/**/*"]
 }

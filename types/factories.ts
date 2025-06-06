@@ -66,6 +66,7 @@ export function createCandidate(override: Partial<Candidate> = {}): Candidate {
     cv: createCV(),
     ha: createHA(),
     decision: "maybe",
+    aiDecision: "maybe",
     status: "applied",
     lastUpdated: now,
     createdAt: now,

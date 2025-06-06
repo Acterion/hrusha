@@ -7,6 +7,7 @@ interface KanbanColumnProps {
   title: string;
   candidates: Candidate[];
   count: number;
+  onCandidateClick?: (candidateId: string) => void;
 }
 
 export function KanbanColumn({
@@ -14,6 +15,7 @@ export function KanbanColumn({
   title,
   candidates,
   count,
+  onCandidateClick,
 }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id,
@@ -37,7 +39,15 @@ export function KanbanColumn({
 
       <div className="flex-1 p-2 overflow-y-auto">
         {candidates.map((candidate) => (
-          <CandidateCard key={candidate.id} candidate={candidate} />
+          <CandidateCard
+            key={candidate.id}
+            candidate={candidate}
+            onClick={
+              onCandidateClick
+                ? () => onCandidateClick(candidate.id)
+                : undefined
+            }
+          />
         ))}
 
         {candidates.length === 0 && (
