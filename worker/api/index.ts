@@ -14,7 +14,9 @@ export async function apiRouter(
   const url = new URL(request.url);
 
   if (url.pathname === "/api/cv-upload") {
-    return handleCvUpload(request, env);
+    if (request.method === "POST"){
+      return handleCvUpload(request, env);
+    }
   }
 
   if (url.pathname === "/api/cv-workflow") {
