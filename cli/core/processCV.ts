@@ -45,6 +45,10 @@ export async function evaluateSingleGrade(
   grade: z.infer<typeof GradeSchema>,
   textCV: string
 ) {
+  if (!grade) {
+    throw new Error(`❌ Cannot evaluate grade: received null or undefined grade.`);
+  }
+  
   const systemPrompt = `
 You are an expert technical recruiter.
 
