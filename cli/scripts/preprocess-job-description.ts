@@ -10,7 +10,7 @@ import { z } from "zod";
 
 // Import types and schemas
 import { Candidate, Decision, Status, schemas } from "@types";
-import { GradeSchema, JobDescriptionSchema } from "types/schemas";
+import { GradeSchema, JobDescriptionSchema } from "../../types/schemas";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

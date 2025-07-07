@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Import types and schemas
-import { EvalSchema, GradeSchema } from "types/schemas";
+import { EvalSchema, GradeSchema } from "../../types/schemas";
 
 export async function readCV(pathToCV: string): Promise<string> {
   try {

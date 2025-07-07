@@ -11,7 +11,7 @@ import {evaluateGrades, evaluateSingleGrade, readCV} from "cli/core/processCV";
 // Import types and schemas
 import { Candidate, Decision, Status, schemas } from "@types";
 
-import { GradeSchema } from "types/schemas";
+import { GradeSchema } from "../../types/schemas";
 export const GradeArraySchema = z.array(GradeSchema);
 
 const __filename = fileURLToPath(import.meta.url);

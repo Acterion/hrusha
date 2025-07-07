@@ -5,7 +5,7 @@ import { fileURLToPath } from "url";
 import { z } from "zod";
 
 import { Candidate, Decision, Status, schemas } from "@types";
-import { EvalSchema } from "types/schemas";
+import { EvalSchema } from "../../types/schemas";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
